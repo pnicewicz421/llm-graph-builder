@@ -1,5 +1,5 @@
-import { createContext, useContext, useState, Dispatch, SetStateAction, FC } from 'react';
-import { CustomFile, FileContextProviderProps, OptionType } from '../types';
+import { createContext, useContext, useState, Dispatch, SetStateAction, FC, ReactNode } from 'react';
+import { CustomFile, OptionType } from '../types';
 import { NODES_OPTIONS, RELATION_OPTIONS, defaultLLM } from '../utils/Constants';
 
 interface FileContextType {
@@ -16,6 +16,11 @@ interface FileContextType {
   selectedRels: readonly OptionType[];
   setSelectedRels: Dispatch<SetStateAction<readonly OptionType[]>>;
 }
+
+interface FileContextProviderProps {
+  children: ReactNode;
+}
+
 const FileContext = createContext<FileContextType | undefined>(undefined);
 
 const FileContextProvider: FC<FileContextProviderProps> = ({ children }) => {

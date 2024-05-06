@@ -7,8 +7,7 @@ ENV REACT_APP_SOURCES ""
 ENV LLM_MODELS ""
 ENV ENV "DEV"
 WORKDIR /app
-COPY package.json .npmrc  yarn.lock ./
-RUN yarn add @neo4j-nvl/interaction-handlers @neo4j-nvl/core @neo4j-nvl/react
+COPY package.json  yarn.lock ./
 RUN yarn install
 COPY . ./
 RUN yarn run build

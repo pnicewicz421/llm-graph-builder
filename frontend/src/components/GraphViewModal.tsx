@@ -4,22 +4,15 @@ import {
   Dialog,
   Flex,
   IconButton,
-  IconButtonArray,
   LoadingSpinner,
   TextInput,
   TextLink,
   Typography,
 } from '@neo4j-ndl/react';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { GraphType, GraphViewModalProps, Scheme } from '../types';
 
-import {
-  FitToScreenIcon,
-  MagnifyingGlassMinusIconOutline,
-  MagnifyingGlassPlusIconOutline,
-} from '@neo4j-ndl/react/icons';
-import ButtonWithToolTip from './ButtonWithToolTip';
-import { constructDocQuery, constructQuery, getIcon, getNodeCaption, getSize } from '../utils/Utils';
+import { constructDocQuery, constructQuery } from '../utils/Utils';
 import {
   entities,
   chunks,
@@ -31,7 +24,6 @@ import {
 } from '../utils/Constants';
 import { ArrowSmallRightIconOutline } from '@neo4j-ndl/react/icons';
 import { useCredentials } from '../context/UserCredentials';
-import { LegendsChip } from './LegendsChip';
 import { calcWordColor } from '@neo4j-devtools/word-color';
 
 const GraphViewModal: React.FunctionComponent<GraphViewModalProps> = ({
@@ -47,7 +39,6 @@ const GraphViewModal: React.FunctionComponent<GraphViewModalProps> = ({
   const [statusMessage, setStatusMessage] = useState<string>('');
   const [docLimit, setDocLimit] = useState<string>('3');
   const { driver } = useCredentials();
-  const [scheme, setScheme] = useState<Scheme>({});
 
   const handleCheckboxChange = (graph: GraphType) => {
     const currentIndex = graphType.indexOf(graph);
@@ -77,16 +68,6 @@ const GraphViewModal: React.FunctionComponent<GraphViewModalProps> = ({
     ChunksEntities: chunksEntities,
     DocChunkEntities: docChunkEntities,
   };
-  const handleZoomToFit = () => {
-  };
-  useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      handleZoomToFit();
-    }, 1000);
-    return () => {
-      setScheme({});
-    };
-  }, []);
 
   useEffect(() => {
     if (open) {
@@ -135,36 +116,6 @@ const GraphViewModal: React.FunctionComponent<GraphViewModalProps> = ({
               });
             });
 
-            const newNodes = neo4jNodes.map((n) => {
-              const totalNodes = n.map((g: any) => {
-                return {
-                  id: g.elementId,
-                  size: getSize(g),
-                  captionAlign: 'bottom',
-                  iconAlign: 'bottom',
-                  captionHtml: <b>Test</b>,
-                  caption: getNodeCaption(g),
-                  color: schemeVal[g.labels[0]],
-                  icon: getIcon(g),
-                  labels: g.labels,
-                };
-              });
-              return totalNodes;
-            });
-            const finalNodes = newNodes.flat();
-            const newRels: any = neo4jRels.map((r: any) => {
-              const totalRels = r.map((relations: any) => {
-                return {
-                  id: relations.elementId,
-                  from: relations.startNodeElementId,
-                  to: relations.endNodeElementId,
-                  caption: relations.type,
-                };
-              });
-              return totalRels;
-            });
-            const finalRels = newRels.flat();
-            setScheme(schemeVal);
             setLoading(false);
           } else {
             setLoading(false);
@@ -180,48 +131,20 @@ const GraphViewModal: React.FunctionComponent<GraphViewModalProps> = ({
     }
   }, [open, graphType, documentNo]);
 
-  const labelsLength = Object.keys(scheme).length;
-
   // If the modal is closed, render nothing
   if (!open) {
     return <></>;
   }
-  const mouseEventCallbacks = {
-    onPan: true,
-    onZoom: true,
-    onDrag: true,
-  };
 
   const headerTitle =
     viewPoint !== 'showGraphView' ? `Inspect Generated Graph from ${inspectedName}` : 'Generated Graph';
 
-  const handleZoomIn = () => {
-    nvlRef.current?.setZoom(nvlRef.current.getScale() * 1.3);
-  };
-
-  const handleZoomOut = () => {
-    nvlRef.current?.setZoom(nvlRef.current.getScale() * 0.7);
-  };
 
   const onClose = () => {
     setStatus('unknown');
     setStatusMessage('');
     setGraphViewOpen(false);
-    setScheme({});
   };
-
-  const heightCheck = labelsLength > 80 ? '100%' : 'max-content';
-  const overflowCheck = labelsLength > 80 ? 'scroll' : 'hidden';
-
-  // Legends placement
-  const legendCheck = Object.keys(scheme).sort((a, b) => {
-    if (a === 'Document' || a === 'Chunk') {
-      return -1;
-    } else if (b === 'Document' || b === 'Chunk') {
-      return 1;
-    }
-    return a.localeCompare(b);
-  });
 
   return (
     <>
