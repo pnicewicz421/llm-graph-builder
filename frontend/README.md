@@ -1,5 +1,7 @@
 # Neo4j Knowledge Graph Builder
 
+:warning: This is a TMP branch fix for the issue #261 .
+
 Reactjs Responsive app for building an knowledge graph using [Neo4j Needle](https://www.neo4j.design/).
     
 ## Features
@@ -17,6 +19,9 @@ npm install -g yarn
 yarn i
 yarn run dev
 ```
+
+##
+export LLM_MODELS="Diffbot,Gemini 1.0 Pro,OpenAI GPT 3.5,OpenAI GPT 4,Gemini 1.5 Pro"
 
 ##
 Do run yarn add -- package name to get project updated with required dependencies.
