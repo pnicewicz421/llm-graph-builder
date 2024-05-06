@@ -7,12 +7,11 @@ import {
   IconButtonArray,
   LoadingSpinner,
   TextInput,
+  TextLink,
+  Typography,
 } from '@neo4j-ndl/react';
 import { useEffect, useRef, useState } from 'react';
 import { GraphType, GraphViewModalProps, Scheme } from '../types';
-import { InteractiveNvlWrapper } from '@neo4j-nvl/react';
-import NVL, { NvlOptions } from '@neo4j-nvl/core';
-import type { Node, Relationship } from '@neo4j-nvl/core';
 
 import {
   FitToScreenIcon,
@@ -41,9 +40,6 @@ const GraphViewModal: React.FunctionComponent<GraphViewModalProps> = ({
   setGraphViewOpen,
   viewPoint,
 }) => {
-  const nvlRef = useRef<NVL>(null);
-  const [nodes, setNodes] = useState<Node[]>([]);
-  const [relationships, setRelationships] = useState<Relationship[]>([]);
   const [graphType, setGraphType] = useState<GraphType[]>(['Entities']);
   const [documentNo, setDocumentNo] = useState<string>('3');
   const [loading, setLoading] = useState<boolean>(false);
@@ -82,27 +78,18 @@ const GraphViewModal: React.FunctionComponent<GraphViewModalProps> = ({
     DocChunkEntities: docChunkEntities,
   };
   const handleZoomToFit = () => {
-    nvlRef.current?.fit(
-      nodes.map((node) => node.id),
-      {}
-    );
   };
   useEffect(() => {
     const timeoutId = setTimeout(() => {
       handleZoomToFit();
     }, 1000);
     return () => {
-      nvlRef.current?.destroy();
-      setGraphType(['Entities']);
-      clearTimeout(timeoutId);
       setScheme({});
     };
   }, []);
 
   useEffect(() => {
     if (open) {
-      setNodes([]);
-      setRelationships([]);
       let queryToRun = '';
       const newCheck: string =
         graphType.length === 3
@@ -177,8 +164,6 @@ const GraphViewModal: React.FunctionComponent<GraphViewModalProps> = ({
               return totalRels;
             });
             const finalRels = newRels.flat();
-            setNodes(finalNodes);
-            setRelationships(finalRels);
             setScheme(schemeVal);
             setLoading(false);
           } else {
@@ -207,28 +192,8 @@ const GraphViewModal: React.FunctionComponent<GraphViewModalProps> = ({
     onDrag: true,
   };
 
-  const nvlOptions: NvlOptions = {
-    allowDynamicMinZoom: true,
-    disableWebGL: true,
-    maxZoom: 3,
-    minZoom: 0.05,
-    relationshipThreshold: 0.55,
-    selectionBehaviour: 'single',
-    useWebGL: false,
-    instanceId: 'graph-preview',
-    initialZoom: 0,
-  };
-
   const headerTitle =
     viewPoint !== 'showGraphView' ? `Inspect Generated Graph from ${inspectedName}` : 'Generated Graph';
-
-  const nvlCallbacks = {
-    onLayoutComputing(isComputing: boolean) {
-      if (!isComputing) {
-        handleZoomToFit();
-      }
-    },
-  };
 
   const handleZoomIn = () => {
     nvlRef.current?.setZoom(nvlRef.current.getScale() * 1.3);
@@ -330,34 +295,17 @@ const GraphViewModal: React.FunctionComponent<GraphViewModalProps> = ({
             ) : (
               <>
                 <Flex flexDirection='row' justifyContent='space-between' style={{ height: '100%', padding: '20px' }}>
-                  <div className='legend_div' style={{ height: heightCheck, overflowY: overflowCheck }}>
-                    {legendCheck.map((key, index) => (
-                      <LegendsChip key={index} title={key} scheme={scheme} nodes={nodes} />
-                    ))}
-                  </div>
+                  
                   <div style={{ flex: '0.7' }}>
-                    <InteractiveNvlWrapper
-                      nodes={nodes}
-                      rels={relationships}
-                      nvlOptions={nvlOptions}
-                      ref={nvlRef}
-                      mouseEventCallbacks={{ ...mouseEventCallbacks }}
-                      interactionOptions={{
-                        selectOnClick: true,
-                      }}
-                      nvlCallbacks={nvlCallbacks}
-                    />
-                    <IconButtonArray orientation='vertical' floating className='absolute bottom-4 right-4'>
-                      <ButtonWithToolTip text='Zoom in' onClick={handleZoomIn}>
-                        <MagnifyingGlassPlusIconOutline />
-                      </ButtonWithToolTip>
-                      <ButtonWithToolTip text='Zoom out' onClick={handleZoomOut}>
-                        <MagnifyingGlassMinusIconOutline />
-                      </ButtonWithToolTip>
-                      <ButtonWithToolTip text='Zoom to fit' onClick={handleZoomToFit}>
-                        <FitToScreenIcon />
-                      </ButtonWithToolTip>
-                    </IconButtonArray>
+                    <Typography variant='h1' className='text-palette-neutral-text-default'>
+                      Temporarily disabled
+                    </Typography>
+                    <Typography variant='body-large' className='text-palette-neutral-text-default'>
+                      Graph view is temporarily disabled because of this <TextLink externalLink href='https://github.com/neo4j-labs/llm-graph-builder/issues/261'>Github issue</TextLink>. 
+                      For the graph view, a private library was used which will be publicly released (very) soon.
+                      Once that package is released, we will provide a fix that will switch to using the public library.
+                      If you want to be notified when that happen, please subscribe to <TextLink externalLink href='https://github.com/neo4j-labs/llm-graph-builder/issues/261'>the issue on Github</TextLink>.
+                    </Typography>
                   </div>
                 </Flex>
               </>
